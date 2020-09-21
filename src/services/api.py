@@ -2,9 +2,10 @@ import requests
 from dotenv import load_dotenv
 import os
 load_dotenv()
+GITHUB_APIKEY = os.getenv("GITHUB_APIKEY")
 
 
-def get_github(endpoint, apiKey=os.getenv("GITHUB_APIKEY"), query_params={}):
+def get_github(endpoint, apiKey=GITHUB_APIKEY, query_params={}):
     """
     Get data from github using query parameters and passing a custom apikey header
     """
