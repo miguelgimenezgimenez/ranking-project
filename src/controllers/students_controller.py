@@ -7,32 +7,37 @@ from src.database import db
 # http://localhost:3000/v2/company/facebook
 
 
-@app.route("/students/create/<studentname>")
+@app.route("/students/create/<student_name>")
 @asJsonResponse
-def searchCompanyV2(studentname):
+def create_student(student_name):
+    if not student_name:
+        # Set status code to 400 BAD REQUEST
+        return {
+            "status": "error",
+            "message": "Empty student name, please specify one"
+        }, 400
 
-    # if not studentname:
-    #     # Set status code to 400 BAD REQUEST
-    #     return {
-    #         "status": "error",
-    #         "message": "Empty company name, please specify one"
-    #     }, 400
+    existing_student = db['students'].find_one({"student_name": student_name})
+    if existing_student:
+        return {
+            "status": "error",
+            "message": "There is allready a student with this name on the database"
+        }, 409
+    student = db['students'].insert({"student_name": student_name})
 
-    # # Search a company in mongodb database
-    # projection = {"name": 1, "category_code": 1, "description": 1}
-    # searchRE = re.compile(f"{companyNameQuery}", re.IGNORECASE)
-    # foundCompany = db["crunchbase"].find_one(
-    #     {"name": searchRE}, projection)
+    return {
+        "status": "OK",
+        "response": student
+    }
 
-    # if not foundCompany:
-    #     # Set status code to 404 NOT FOUND
-    #     return {
-    #         "status": "not found",
-    #         "message": f"No company found with name {companyNameQuery} in database"
-    #     }, 404
 
-    # return {
-    #     "status": "OK",
-    #     "searchQuery": companyNameQuery,
-    #     "company": foundCompany
-    # }
+@app.route("/students/all")
+@asJsonResponse
+def get_students():
+    limit = int(request.args.get("limit", 50))
+    page = int(request.args.get("page", 0))
+    students = db['students'].find({}, {'_id': 0}).limit(limit).skip(page)
+    return {
+        "status": "OK",
+        "response": list(students)
+    }

@@ -5,7 +5,7 @@ load_dotenv()
 GITHUB_APIKEY = os.getenv("GITHUB_APIKEY")
 
 
-def get_github(endpoint, apiKey=GITHUB_APIKEY, query_params={}):
+def get_github(endpoint, apiKey=GITHUB_APIKEY, query_params={}, return_links=False):
     """
     Get data from github using query parameters and passing a custom apikey header
     """
@@ -26,5 +26,6 @@ def get_github(endpoint, apiKey=GITHUB_APIKEY, query_params={}):
 
     if res.status_code != 200:
         raise ValueError(f'Invalid github api call: {data["message"]}')
-
+    if return_links:
+        return data, res.links
     return data
